@@ -38,9 +38,6 @@ public class EnemyController : MonoBehaviour
     }
 
     void FixedUpdate() {
-       
-        
-        
             if (pathState < movePath.Count && !groomTriggered)
             {
                 Vector2 targetPosition = movePath[pathState];

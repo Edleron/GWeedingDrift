@@ -40,7 +40,6 @@ public class ObjectPooler : MonoBehaviour
         }
     }
 
-
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag))
@@ -49,20 +48,21 @@ public class ObjectPooler : MonoBehaviour
             return null;
         }
 
+        if (poolDictionary[tag].Count == 0)
+        {
+            return null;
+            // ExpandPool(tag);
+        }
+
         GameObject objectToSpawn = poolDictionary[tag].Dequeue();
 
         objectToSpawn.SetActive(true);
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
-        // Buraya dokunma
-        // Nesneyi tekrar havuza eklemek yerine, kullanımdan sonra geri koyacağız.
-        // poolDictionary[tag].Enqueue(objectToSpawn);
-
         return objectToSpawn;
     }
 
-    // Havuza nesne geri koymak için bir yapı
     public void ReturnToPool(string tag, GameObject objectToReturn)
     {
         if (!poolDictionary.ContainsKey(tag))
@@ -70,11 +70,19 @@ public class ObjectPooler : MonoBehaviour
             Debug.LogWarning("Pool with tag " + tag + " doesn't exist.");
             return;
         }
-        Destroy(objectToReturn);
 
-        // Yeni bir nesne oluştur ve havuza ekle
-        GameObject newObj = Instantiate(poolDictionary[tag].Peek(), transform);
-        newObj.SetActive(false);
-        poolDictionary[tag].Enqueue(newObj);
+        objectToReturn.SetActive(false);
+        poolDictionary[tag].Enqueue(objectToReturn);
+    }
+
+    private void ExpandPool(string tag)
+    {
+        Pool pool = pools.Find(p => p.tag == tag);
+        if (pool != null)
+        {
+            GameObject obj = Instantiate(pool.prefab);
+            obj.SetActive(false);
+            poolDictionary[tag].Enqueue(obj);
+        }
     }
 }

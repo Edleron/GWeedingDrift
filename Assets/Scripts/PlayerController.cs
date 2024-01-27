@@ -5,23 +5,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Hız değerini birim/saniye olarak ayarla
+    public float moveSpeed = 5f;
+    private Rigidbody2D rb;
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Vector2 moveInput = Vector2.zero;
+    private AudioSource audioSource;
 
-    Rigidbody2D rb;
-    Animator animator;
-    SpriteRenderer spriteRenderer;
-    Vector2 moveInput = Vector2.zero;
-    public bool gainCoin=false;
-    int coins=0;
-    AudioSource audioSource;
-    [SerializeField] Transform groom;
+    private int coins = 0;
 
     void Start(){
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
-
     }
 
     void FixedUpdate() {
@@ -38,26 +35,23 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("move", true);
         } else {
             animator.SetBool("move", false);
-        }
-
-        
+        }        
     }
-    private void OnTriggerEnter2D(Collider2D collision) // Coin'ler toplandıkça yok edicek ve sayıcak
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.CompareTag("Groom"))
+        if (collision.gameObject.CompareTag("Coin"))
         {
-            collision.gameObject.SetActive(false);
-            gainCoin = true;
             coins++;
             audioSource.Play();
+            CoinGenerate.Instance.Counter = CoinGenerate.Instance.Counter - 1;
+            collision.gameObject.SetActive(false);
+            ObjectPooler.Instance.ReturnToPool("Coin", collision.gameObject);
         }
-      
-      
     }
 
 
 
     void OnMove(InputValue value) {
-        moveInput = value.Get<Vector2>().normalized; // Normalizasyon, sabit hızı korumak için
+        moveInput = value.Get<Vector2>().normalized;
     }
 }
