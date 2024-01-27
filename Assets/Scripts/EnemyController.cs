@@ -11,6 +11,8 @@ public class EnemyController : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
     SpriteRenderer spriteRenderer;
+    [SerializeField] private Transform Bride;
+    private bool groomTriggered ;
 
     private int pathState;
     public List<Vector2> movePath = new List<Vector2>();
@@ -24,37 +26,76 @@ public class EnemyController : MonoBehaviour
         if (movePath.Count > 0) {
             MoveToNextPoint();
         }
+        
+    }
+    private void Update()
+    {
+        if (groomTriggered && Input.GetKey(KeyCode.E))
+            grab();
+        else                            
+            groomTriggered = false;
+            
     }
 
     void FixedUpdate() {
-        if (pathState < movePath.Count) {
-            Vector2 targetPosition = movePath[pathState];
-            Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
-            Vector2 newPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
-            rb.MovePosition(newPosition);
+       
+        
+        
+            if (pathState < movePath.Count && !groomTriggered)
+            {
+                Vector2 targetPosition = movePath[pathState];
+                Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
+                Vector2 newPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
 
-            if (direction.x > 0) {
-                spriteRenderer.flipX = true;
-            } else if (direction.x < 0) {
-                spriteRenderer.flipX = false;
-            }
+                rb.MovePosition(newPosition);
 
-            animator.SetBool("move", true);
+                if (direction.x > 0)
+                {
+                    spriteRenderer.flipX = true;
+                }
+                else if (direction.x < 0)
+                {
+                    spriteRenderer.flipX = false;
+                }
 
-            if (Vector2.Distance(transform.position, targetPosition) < 0.1f) {
-                pathState++;
-                if (pathState < movePath.Count) {
-                    MoveToNextPoint();
-                } else {
-                    animator.SetBool("move", false);
+                animator.SetBool("move", true);
+
+                if (Vector2.Distance(transform.position, targetPosition) < 0.1f)
+                {
+                    pathState++;
+                    if (pathState < movePath.Count)
+                    {
+                        MoveToNextPoint();
+                    }
+                    else
+                    {
+                        animator.SetBool("move", false);
+                    }
                 }
             }
-        } else {
-            animator.SetBool("move", false);
+            else
+            {
+                animator.SetBool("move", false);
+            }
+        
+    }
+    private void OnTriggerEnter2D(Collider2D collision) 
+    {
+        if (collision.gameObject.CompareTag("Bride"))
+        {
+            groomTriggered = true;  
         }
+
+
+    }
+   
+    private void grab()
+    {
+        transform.position = new Vector3(Bride.position.x - 1, Bride.position.y, transform.position.z);
     }
 
     void MoveToNextPoint() {
+       
         if (pathState % 5 == 0)
         {
             moveSpeed++;

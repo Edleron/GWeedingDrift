@@ -11,11 +11,17 @@ public class PlayerController : MonoBehaviour
     Animator animator;
     SpriteRenderer spriteRenderer;
     Vector2 moveInput = Vector2.zero;
+    public bool gainCoin=false;
+    int coins=0;
+    AudioSource audioSource;
+    [SerializeField] Transform groom;
 
     void Start(){
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
+
     }
 
     void FixedUpdate() {
@@ -33,7 +39,23 @@ public class PlayerController : MonoBehaviour
         } else {
             animator.SetBool("move", false);
         }
+
+        
     }
+    private void OnTriggerEnter2D(Collider2D collision) // Coin'ler toplandıkça yok edicek ve sayıcak
+    {
+        if (!collision.gameObject.CompareTag("Groom"))
+        {
+            collision.gameObject.SetActive(false);
+            gainCoin = true;
+            coins++;
+            audioSource.Play();
+        }
+      
+      
+    }
+
+
 
     void OnMove(InputValue value) {
         moveInput = value.Get<Vector2>().normalized; // Normalizasyon, sabit hızı korumak için

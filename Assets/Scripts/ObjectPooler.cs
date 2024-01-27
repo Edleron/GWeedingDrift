@@ -40,6 +40,7 @@ public class ObjectPooler : MonoBehaviour
         }
     }
 
+
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
         if (!poolDictionary.ContainsKey(tag))
@@ -69,8 +70,11 @@ public class ObjectPooler : MonoBehaviour
             Debug.LogWarning("Pool with tag " + tag + " doesn't exist.");
             return;
         }
+        Destroy(objectToReturn);
 
-        objectToReturn.SetActive(false);
-        poolDictionary[tag].Enqueue(objectToReturn);
+        // Yeni bir nesne oluştur ve havuza ekle
+        GameObject newObj = Instantiate(poolDictionary[tag].Peek(), transform);
+        newObj.SetActive(false);
+        poolDictionary[tag].Enqueue(newObj);
     }
 }
