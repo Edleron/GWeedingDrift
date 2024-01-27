@@ -5,54 +5,37 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 150f;
-    public float maxSpeed = 8f;
+    public float moveSpeed = 5f; // Hız değerini birim/saniye olarak ayarla
 
-    // Each frame of physics, what percentage of the speed should be shaved off the velocity out of 1 (100%)
-    public float idleFriction = 0.9f;
     Rigidbody2D rb;
-    // Animator animator;
-    // SpriteRenderer spriteRenderer;
+    Animator animator;
+    SpriteRenderer spriteRenderer;
     Vector2 moveInput = Vector2.zero;
-
 
     void Start(){
         rb = GetComponent<Rigidbody2D>();
-        // animator = GetComponent<Animator>();
-        // spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void FixedUpdate() {
-        
         if(moveInput != Vector2.zero) {
-            // Move animation and add velocity
+            Vector2 currentPosition = rb.position;
+            Vector2 newPosition = currentPosition + moveInput * moveSpeed * Time.fixedDeltaTime;
+            rb.MovePosition(newPosition);
 
-            // Accelerate the player while run direction is pressed
-            // BUT don't allow player to run faster than the max speed in any direction
-            rb.velocity = Vector2.ClampMagnitude(rb.velocity + (moveInput * moveSpeed * Time.deltaTime), maxSpeed);
-
-            // Control whether looking left or right
             if(moveInput.x > 0) {
-                // spriteRenderer.flipX = false;
+                spriteRenderer.flipX = true;
             } else if (moveInput.x < 0) {
-                // spriteRenderer.flipX = true;
+                spriteRenderer.flipX = false;
             }
-
-            UpdateAnimatorParameters();
+            animator.SetBool("move", true);
         } else {
-            // No movement so interpolate velocity towards 0
-            rb.velocity = Vector2.Lerp(rb.velocity, Vector2.zero, idleFriction);
+            animator.SetBool("move", false);
         }
     }
 
-
-    // Get input values for player movement
     void OnMove(InputValue value) {
-        moveInput = value.Get<Vector2>();
-    }
-
-    void UpdateAnimatorParameters() {
-        // animator.SetFloat("moveX", moveInput.x);
-        // animator.SetFloat("moveY", moveInput.y);
+        moveInput = value.Get<Vector2>().normalized; // Normalizasyon, sabit hızı korumak için
     }
 }
