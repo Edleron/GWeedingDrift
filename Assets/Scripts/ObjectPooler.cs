@@ -54,13 +54,14 @@ public class ObjectPooler : MonoBehaviour
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 
+        // Buraya dokunma
         // Nesneyi tekrar havuza eklemek yerine, kullanımdan sonra geri koyacağız.
         // poolDictionary[tag].Enqueue(objectToSpawn);
 
         return objectToSpawn;
     }
 
-    // Havuza nesne geri koymak için yeni bir metod
+    // Havuza nesne geri koymak için bir yapı
     public void ReturnToPool(string tag, GameObject objectToReturn)
     {
         if (!poolDictionary.ContainsKey(tag))
