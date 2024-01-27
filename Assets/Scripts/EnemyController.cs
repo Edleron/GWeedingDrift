@@ -15,26 +15,46 @@ public class EnemyController : MonoBehaviour
     private bool groomTriggered ;
 
     private int pathState;
-    public List<Vector2> movePath = new List<Vector2>();
+    private List<Vector2> movePath = new List<Vector2>();
 
     void Start(){
         pathState = 0;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();        
 
-        if (movePath.Count > 0) {
-            MoveToNextPoint();
-        }
-        
+        PathGenerate();
     }
+
+    private void PathGenerate()
+    {
+        int index = 0;
+        int gear = 0;
+        int borderX = 4;
+        int borderY = 2;
+
+       while(gear < 3) 
+       {
+            for (var i = 0; i < 15; i++)
+            {
+                index++;
+                Vector2 position = new Vector2(Random.Range(borderX, -borderX), Random.Range(borderY, -borderY));
+                movePath.Add(position);                
+            }
+            gear++;
+            borderX = borderX + 2;
+            borderY = borderY + 1;
+       }
+
+       movePath.Add(new Vector2(0, -8.65f));
+    }
+
     private void Update()
     {
         if (groomTriggered && Input.GetKey(KeyCode.E))
             grab();
         else                            
             groomTriggered = false;
-            
     }
 
     void FixedUpdate() {
@@ -82,8 +102,6 @@ public class EnemyController : MonoBehaviour
         {
             groomTriggered = true;  
         }
-
-
     }
    
     private void grab()
@@ -92,7 +110,6 @@ public class EnemyController : MonoBehaviour
     }
 
     void MoveToNextPoint() {
-       
         if (pathState % 5 == 0)
         {
             moveSpeed++;
