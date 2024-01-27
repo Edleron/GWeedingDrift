@@ -46,6 +46,7 @@ public class EnemyController : MonoBehaviour
             borderY = borderY + 1;
        }
 
+       // Son path -> karakter çıkar ve level resetlenir !
        movePath.Add(new Vector2(0, -8.65f));
     }
 
@@ -58,43 +59,42 @@ public class EnemyController : MonoBehaviour
     }
 
     void FixedUpdate() {
-            if (pathState < movePath.Count && !groomTriggered)
+        if (pathState < movePath.Count && !groomTriggered)
+        {
+            Vector2 targetPosition = movePath[pathState];
+            Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
+            Vector2 newPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
+
+            rb.MovePosition(newPosition);
+
+            if (direction.x > 0)
             {
-                Vector2 targetPosition = movePath[pathState];
-                Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
-                Vector2 newPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
+                spriteRenderer.flipX = true;
+            }
+            else if (direction.x < 0)
+            {
+                spriteRenderer.flipX = false;
+            }
 
-                rb.MovePosition(newPosition);
+            animator.SetBool("move", true);
 
-                if (direction.x > 0)
+            if (Vector2.Distance(transform.position, targetPosition) < 0.1f)
+            {
+                pathState++;
+                if (pathState < movePath.Count)
                 {
-                    spriteRenderer.flipX = true;
+                    MoveToNextPoint();
                 }
-                else if (direction.x < 0)
+                else
                 {
-                    spriteRenderer.flipX = false;
-                }
-
-                animator.SetBool("move", true);
-
-                if (Vector2.Distance(transform.position, targetPosition) < 0.1f)
-                {
-                    pathState++;
-                    if (pathState < movePath.Count)
-                    {
-                        MoveToNextPoint();
-                    }
-                    else
-                    {
-                        animator.SetBool("move", false);
-                    }
+                    animator.SetBool("move", false);
                 }
             }
-            else
-            {
-                animator.SetBool("move", false);
-            }
-        
+        }
+        else
+        {
+            animator.SetBool("move", false);
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision) 
     {
