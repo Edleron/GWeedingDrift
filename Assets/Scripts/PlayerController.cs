@@ -14,6 +14,16 @@ public class PlayerController : MonoBehaviour
 
     private int coins = 0;
 
+    private void OnEnable()
+    {
+        EventManager.onDetectRestart += onRestartPlayer;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.onDetectRestart -= onRestartPlayer;
+    }
+
     void Start(){
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -37,6 +47,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("move", false);
         }        
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Coin"))
@@ -46,12 +57,17 @@ public class PlayerController : MonoBehaviour
             CoinGenerate.Instance.Counter = CoinGenerate.Instance.Counter - 1;
             collision.gameObject.SetActive(false);
             ObjectPooler.Instance.ReturnToPool("Coin", collision.gameObject);
+
+            EventManager.Fire_onDetectSlider(coins);
         }
     }
 
-
-
-    void OnMove(InputValue value) {
+    private void OnMove(InputValue value) {
         moveInput = value.Get<Vector2>().normalized;
+    }
+
+    private void onRestartPlayer()
+    {
+        this.transform.position = new Vector3(0, 0, 0);
     }
 }

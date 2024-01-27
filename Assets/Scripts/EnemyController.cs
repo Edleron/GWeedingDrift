@@ -7,6 +7,7 @@ public class EnemyController : MonoBehaviour
 {
     public float moveSpeed = 150f;
     public float maxSpeed = 8f;
+    public Animator circleAnim;
 
     Rigidbody2D rb;
     Animator animator;
@@ -16,6 +17,17 @@ public class EnemyController : MonoBehaviour
 
     private int pathState;
     private List<Vector2> movePath = new List<Vector2>();
+
+    
+    private void OnEnable()
+    {
+        EventManager.onDetectRestart += onRestartPlayer;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.onDetectRestart -= onRestartPlayer;
+    }
 
     void Start(){
         pathState = 0;
@@ -89,6 +101,16 @@ public class EnemyController : MonoBehaviour
                 {
                     animator.SetBool("move", false);
                 }
+
+                // Restart Game
+                if (pathState == movePath.Count)
+                {
+                    
+                    LevelManager.Instance.puanValue--;
+                    circleAnim.SetBool("state", false);
+                    EventManager.Fire_onDetectRestart();
+                    EventManager.Fire_onDetectPuan(LevelManager.Instance.puanValue);
+                }
             }
         }
         else
@@ -112,7 +134,21 @@ public class EnemyController : MonoBehaviour
     void MoveToNextPoint() {
         if (pathState % 5 == 0)
         {
-            moveSpeed++;
+            moveSpeed = moveSpeed + 0.25f;
         }
+
+        if (pathState > 30)
+        {
+            circleAnim.SetBool("state", true);
+            int teaser = movePath.Count - pathState;
+            EventManager.Fire_onDetectTimer(teaser);
+        }
+    }
+
+    private void onRestartPlayer()
+    {
+        pathState = 0;
+        moveSpeed = 2;
+        this.transform.position = new Vector3(0, 0, 0);
     }
 }
